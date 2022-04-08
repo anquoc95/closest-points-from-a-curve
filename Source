@@ -1,0 +1,54 @@
+float f = chf("f");
+int nprims = nprimitives(0);
+for ( int i = 0 ; i < nprims ; i ++ ){
+    int list[] = primpoints(0,i);
+    setprimattrib(0,"list_points",i,list,"set");
+    vector a = point(0,"P",list[0]);
+    vector b = point(0,"P",list[1]);
+    vector c;
+    int npts = npoints(1);
+    float list_dist[],c_angle[],c_h[],c_angle_r[];
+    float dist,h;
+    vector ab,ac,cd,ac_r,ba;
+    for ( int j = 0 ; j < npts ; j ++ ){
+        vector mpos = point(1,"P",j);
+        dist = ptlined(a,b,mpos);
+        append(list_dist,dist);
+        ab = b - a;
+        ac = mpos - a;
+        ba = b - a;
+        ba = normalize(ba);
+        float length = length(ac);
+        float angle = degrees(acos(dot(normalize(ab),normalize(ac))));
+        matrix m = ident();
+        vector up = set(0,1,0);
+        rotate(m,$PI,ba);        
+        ac_r = ac * m;
+        float angle_r = degrees(acos(dot(normalize(ab),normalize(ac_r))));        
+    }  
+    float min_val = min(list_dist);
+    int index = 0 ;
+    for ( int x = 0 ; x < len(list_dist) ; x ++ ){
+        float ref_value = list_dist[x];
+        float min = min_val - ref_value;
+        if ( min < 0.0001 ){
+            min == 0;
+        }
+        if ( min == 0 ){
+            index = x;
+        }
+    }
+    c = point(0,"P",i);
+    vector s = c + ac_r;
+    vector q = point(1,"P",index);
+    int at = addpoint(0,q);
+    int pt = addpoint(0,s);
+    vector w = s - q;
+    w /= 2;
+    removepoint(0,at);
+    removepoint(0,pt);
+    addpoint(0,q+w);
+    setprimattrib(0,"position",i,q+w,"set");
+    setprimattrib(0,"index",i,index,"set");
+    setprimattrib(0,"dist",i,list_dist,"set");    
+}
